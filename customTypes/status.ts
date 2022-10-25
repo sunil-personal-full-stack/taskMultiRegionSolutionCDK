@@ -1,0 +1,1 @@
+export type STATUS = 'Draft' | 'Assigned' | 'In-progress' | 'Completed' | 'Closed';
