@@ -58,7 +58,7 @@ export const handler = async (event: any): Promise<any> => {
             id: uuidv4(),
             title: body.title,
             description: body.description,
-            dateCreated: (new Date()).toDateString()
+            dateCreated: new Date()
           }
 
           await TaskModel.default.Model.create(taskData);
