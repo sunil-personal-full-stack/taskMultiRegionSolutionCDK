@@ -45,6 +45,7 @@ const TaskModel = dynamoose.model<Task>("TasksTable", {
         type: Date,
         required: false
     },
+    
     dateClosed: {
         type: Date,
         required: false
