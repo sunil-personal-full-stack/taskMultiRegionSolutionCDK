@@ -126,3 +126,26 @@ const subValidation = (key: string, value: any, validationConfig: ValidationConf
     }
   }
 }
+
+export const getRequestParameters = (event: any) => {
+  let response: any = {};
+  
+  if (event['resource'] && event['path']) {
+    let resourceParts = event['resource'].split('/');
+    let pathParts = event['path'].split('/');
+    
+    if (resourceParts.length === pathParts.length) {
+      for (let i = 0; i < resourceParts.length; i++) {
+        if (resourceParts[i].includes('{')) {
+          let currentKey: string = resourceParts[i];
+          currentKey = currentKey.replace('{', '');
+          currentKey = currentKey.replace('}', '');
+
+          response[currentKey] = pathParts[i];
+        } 
+      }
+    }
+  }
+
+  return response;
+}

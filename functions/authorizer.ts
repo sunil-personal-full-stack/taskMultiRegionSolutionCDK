@@ -5,10 +5,6 @@ export const authorizer: APIGatewayTokenAuthorizerHandler = async (event) => {
     const token = event.authorizationToken;
     let effect = 'Deny';
 
-    // if (compareTokenWithCredentials(token, "user", "pass")) {
-    //     effect = 'Allow';
-    // }
-
     dummyApplicationUser.forEach(element => {
         if (element.api_key === token) {
             effect = 'Allow'

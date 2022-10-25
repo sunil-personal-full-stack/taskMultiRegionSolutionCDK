@@ -4,6 +4,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from "constructs";
 
 import {
+  AuthorizationType,
   DomainName,
   LambdaIntegration,
   RestApi,
@@ -27,6 +28,7 @@ import { createTable, getTableSuffix } from "./dynamodb";
 import { AddApiGateWayDomainNameProps } from "../customTypes/addApiGatewayDomainProps";
 import { createTaskLambda } from "./lambdas/createTask";
 import { createCustomAuthorizer } from "./lambdas/customAuthorizer";
+import { updateTaskLambda } from "./lambdas/updateTask";
 
 
 
@@ -75,12 +77,14 @@ export class MultiApp extends Stack {
       description: 'Common Role For all Lambda functions'
     })
 
+    role.addManagedPolicy(iam.ManagedPolicy.fromManagedPolicyArn(this, 'basic-lambda', 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'));
+
     // CREATE DYNAMODB TABLE
     let table = createTable(
       this,
       {
         region,
-        tableName: `TasksTable${getTableSuffix()}`,
+        tableName: `TasksTableV4${getTableSuffix()}`,
         replicationRegions: SECONDARY_REGIONS,
       },
       MAIN_REGION
@@ -97,19 +101,24 @@ export class MultiApp extends Stack {
     // ADD DOMAIN TO API GATEWAY
     this.addApiGateWayDomainName({ domainName, restApi, hostedZoneId, region });
 
+    let taskResource = restApi.root.addResource("task");
+
     // CODE FOR ADDING LAMBDA TO DIFFERENT SUB ROOTS
     // AUTHORIZER FUNCTION CREATION
     const authorizer = createCustomAuthorizer(this, region);
     const createTask = createTaskLambda(this, region, role);
+    const updateTask = updateTaskLambda(this, region, role);
     
     
+    // ADD CREATE TASK API
+    taskResource.addMethod("POST", new LambdaIntegration(createTask, { proxy: true }), { authorizer });
 
-    let taskResource = restApi.root.addResource("task");
-    taskResource.addMethod(
-      "POST",
-      new LambdaIntegration(createTask, { proxy: true }),
-      { authorizer }
-    );
+
+    // ADD UPDATE TASK API
+    let currentTaskResource = taskResource.addResource('{taskId}');
+
+    currentTaskResource.addMethod('PUT', new LambdaIntegration(updateTask, { proxy: true }), { authorizationType: AuthorizationType.CUSTOM, authorizer: authorizer,  });
+
   }
 
   private addApiGateWayDomainName({
@@ -166,8 +175,5 @@ export class MultiApp extends Stack {
     recordSet.region = region;
     recordSet.healthCheckId = healthCheck.attrHealthCheckId;
     recordSet.setIdentifier = `${region}Api`;
-
-    // Warning: This does not yet evaluate the health of the target, and I don't feel like understand what that means exactly.
-    // CfnRecordSet has a aliasTarget where we can set evaluateTargetHealth to true, but the docs are sparse on what data dnsName requires.
   }
 }

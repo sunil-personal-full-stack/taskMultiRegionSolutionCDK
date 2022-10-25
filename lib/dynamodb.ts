@@ -20,15 +20,6 @@ export function createTable(stack : Stack, { tableName, replicationRegions, regi
             replicationRegions,
         });
 
-        table.addGlobalSecondaryIndex({
-            indexName: "assignedToIndex",
-            partitionKey: {
-                name: "assignedTo",
-                type: AttributeType.STRING
-            },
-            projectionType: ProjectionType.ALL
-        });
-
         return table
     } else {
         return Table.fromTableName(stack, "Table", tableName);
