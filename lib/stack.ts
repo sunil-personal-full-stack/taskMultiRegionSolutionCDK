@@ -90,7 +90,7 @@ export class MultiApp extends Stack {
       this,
       {
         region,
-        tableName: `TasksTableV6${getTableSuffix()}`,
+        tableName: `TasksTableV7${getTableSuffix()}`,
         replicationRegions: SECONDARY_REGIONS,
       },
       MAIN_REGION
@@ -154,7 +154,7 @@ export class MultiApp extends Stack {
     
     
     // MEMBER ID SPECIFIC RESOURCE
-    let memberTaskResource = taskResource.addResource('{memberId}');
+    let memberTaskResource = (taskResource.addResource('list')).addResource('{memberId}');
     memberTaskResource.addMethod('GET', new LambdaIntegration(getMemberTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
   }
 

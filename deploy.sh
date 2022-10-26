@@ -1,6 +1,6 @@
 export AWS_PROFILE=default
 
-export DOMAIN_NAME="multiv3.hanuultp.com"
+export DOMAIN_NAME="multiv4.hanuultp.com"
 export HOSTED_ZONE_ID="Z09003082PGMU0TT38LYZ"
 
 export AWS_REGION="us-east-1"
