@@ -15,7 +15,7 @@ export const handler = async (event: any): Promise<any> => {
 
           return {
             body: JSON.stringify({
-              data: taskDetails.toJSON(),
+              data: taskDetails? taskDetails.toJSON(): {},
               message: "Task Detail Fetched",
             }),
             statusCode: 200,

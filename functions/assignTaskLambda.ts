@@ -23,9 +23,18 @@ export const handler = async (event: any): Promise<any> => {
         let taskStatus = "Assigned";
 
         // GET CURRENT TASK DETAILS
-        let currentTask = (
-          await TaskModel.default.Model.get({ id: params["taskId"] })
-        ).toJSON();
+        let currentTask: any = await TaskModel.default.Model.get({ id: params["taskId"] });
+
+        currentTask = currentTask ? currentTask.toJSON() : {};
+
+        if (!currentTask) {
+          return {
+            body: JSON.stringify({
+              message: "Task not found",
+            }),
+            statusCode: 404,
+          };
+        }
 
         if (currentTask.status !== "Closed") {
           let updateData = {

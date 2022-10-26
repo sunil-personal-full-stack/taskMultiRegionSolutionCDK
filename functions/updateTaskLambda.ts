@@ -50,11 +50,13 @@ export const handler = async (event: any): Promise<any> => {
         if (errors.length) {
           return { body: JSON.stringify({ body, errors }), statusCode: 500 };
         } else {
-          let existingData: any = (await TaskModel.default.Model.get({ id: params["taskId"] })).toJSON();
+          let existingData: any = await TaskModel.default.Model.get({ id: params["taskId"] });
 
-          existingData = JSON.parse(JSON.stringify(existingData));
 
           if (existingData) {
+            existingData = existingData.toJSON();
+
+            
             let taskData = {
               id: existingData.id,
               title: body.title,
