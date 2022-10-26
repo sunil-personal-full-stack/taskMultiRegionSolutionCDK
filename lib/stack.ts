@@ -148,7 +148,7 @@ export class MultiApp extends Stack {
     statusResource.addMethod('PUT', new LambdaIntegration(statusChangeTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
     
     let assignResource = (currentTaskResource.addResource('assign')).addResource('{memberId}');
-    assignResource
+    assignResource.addMethod('PUT', new LambdaIntegration(getMemberTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
     
     
     
