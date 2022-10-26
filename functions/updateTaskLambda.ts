@@ -50,25 +50,35 @@ export const handler = async (event: any): Promise<any> => {
         if (errors.length) {
           return { body: JSON.stringify({ body, errors }), statusCode: 500 };
         } else {
-          let existingData: any = await TaskModel.default.Model.query({
-            id: params["taskId"],
-          }).exec();
+          let existingData: any = (await TaskModel.default.Model.get({ id: params["taskId"] })).toJSON();
 
           existingData = JSON.parse(JSON.stringify(existingData));
 
-          if (existingData.length) {
-            existingData = existingData[0];
-            existingData["title"] = body["title"];
-            existingData["description"] = body["description"];
-            
-            let updateData = await TaskModel.default.update(existingData);
-            return {
-              body: JSON.stringify({
-                data: updateData,
-                message: "Task updated success fully",
-              }),
-              statusCode: 200,
-            };
+          if (existingData) {
+            let taskData = {
+              id: existingData.id,
+              title: body.title,
+              description: body.description
+            }
+
+            if (existingData.status === 'Closed') {
+              return {
+                body: JSON.stringify({
+                  message: "Task is in closed state, can not be updated",
+                }),
+                statusCode: 405
+              };
+            } else {
+              let updateData = await TaskModel.default.update(taskData);
+  
+              return {
+                body: JSON.stringify({
+                  data: updateData,
+                  message: "Task updated success fully",
+                }),
+                statusCode: 200,
+              };
+            }
           } else {
             return {
               body: JSON.stringify({

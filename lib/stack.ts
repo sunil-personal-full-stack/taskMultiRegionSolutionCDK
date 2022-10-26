@@ -35,6 +35,7 @@ import { deleteTaskLambda } from "./lambdas/deleteTask";
 import { getTaskLambda } from "./lambdas/getTask";
 import { getMemberTaskLambda } from "./lambdas/getMemberTask";
 import { statusChangeTaskLambda } from "./lambdas/statusChangeTask";
+import { assignTaskLambda } from "./lambdas/assignTask";
 
 
 
@@ -90,7 +91,7 @@ export class MultiApp extends Stack {
       this,
       {
         region,
-        tableName: `TasksTableV9${getTableSuffix()}`,
+        tableName: `TasksTableV10${getTableSuffix()}`,
         replicationRegions: SECONDARY_REGIONS,
       },
       MAIN_REGION
@@ -126,6 +127,7 @@ export class MultiApp extends Stack {
     const getTask = getTaskLambda(this, region, role);
     const getMemberTask = getMemberTaskLambda(this, region, role);
     const statusChangeTask = statusChangeTaskLambda(this, region, role);
+    const assignTask = assignTaskLambda(this, region, role);
 
     // ADD CREATE TASK API
     taskResource.addMethod("POST", new LambdaIntegration(createTask), {authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
@@ -150,9 +152,7 @@ export class MultiApp extends Stack {
     statusResource.addMethod('PUT', new LambdaIntegration(statusChangeTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
     
     let assignResource = (currentTaskResource.addResource('assign')).addResource('{memberId}');
-    assignResource.addMethod('PUT', new LambdaIntegration(getMemberTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
-    
-    
+    assignResource.addMethod('PUT', new LambdaIntegration(assignTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
     
     
     // MEMBER ID SPECIFIC RESOURCE

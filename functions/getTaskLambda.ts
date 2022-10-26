@@ -11,7 +11,7 @@ export const handler = async (event: any): Promise<any> => {
       if (role === "admin") {
         let params = Helper.getRequestParameters(event);
         try {
-          let taskDetails = await TaskModel.default.Model.get(params["taskId"]);
+          let taskDetails = await TaskModel.default.Model.get({id: params["taskId"]});
 
           return {
             body: JSON.stringify({

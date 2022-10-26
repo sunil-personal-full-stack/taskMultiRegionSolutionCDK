@@ -24,14 +24,17 @@ export const handler = async (event: any): Promise<any> => {
 
         // GET CURRENT TASK DETAILS
         let currentTask = (
-          await TaskModel.default.Model.get(params["taskId"])
+          await TaskModel.default.Model.get({ id: params["taskId"] })
         ).toJSON();
 
         if (currentTask.status !== "Closed") {
-          currentTask.status = taskStatus || currentTask.status;
-          currentTask.assignedTo = memberId;
-
-          await TaskModel.default.Model.update(currentTask);
+          let updateData = {
+            id: currentTask.id,
+            status: taskStatus,
+            dateAssigned: new Date(),
+            assignedTo: memberId
+          }
+          await TaskModel.default.Model.update(updateData);
 
           return {
             body: JSON.stringify({

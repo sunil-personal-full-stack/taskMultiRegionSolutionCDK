@@ -46,7 +46,20 @@ export const handler = async (event: any): Promise<any> => {
         if (currentTask.status !== 'Closed') {
           currentTask.status = taskStatus || currentTask.status;
 
-          await TaskModel.default.Model.update(currentTask);
+          let updateData: any = {
+            status: taskStatus || currentTask.status,
+            id: currentTask.id,
+          }
+
+          if (taskStatus === "Completed") {
+            updateData['dateCompleted'] = new Date();
+          }
+
+          if (taskStatus === "Closed") {
+            updateData['dateClosed'] = new Date();
+          }
+
+          await TaskModel.default.Model.update(updateData);
 
           return {
             body: JSON.stringify({

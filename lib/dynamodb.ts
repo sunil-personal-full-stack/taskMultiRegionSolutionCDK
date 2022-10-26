@@ -13,10 +13,6 @@ export function createTable(stack : Stack, { tableName, replicationRegions, regi
                 name: "id",
                 type: AttributeType.STRING,
             },
-            sortKey: {
-                name: "dateCreated",
-                type: AttributeType.NUMBER
-            },
             replicationRegions,
         });
 

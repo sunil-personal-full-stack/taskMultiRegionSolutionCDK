@@ -9,7 +9,7 @@ AWS.config.update({
     region: process.env.region
 });
 
-const TaskModel = dynamoose.model("TasksTableV9", {
+const TaskModel = dynamoose.model("TasksTableV10", {
     id: {
         type: String,
         hashKey: true
