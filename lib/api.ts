@@ -1,4 +1,4 @@
-import { Cors, MockIntegration, PassthroughBehavior, RestApi } from "aws-cdk-lib/aws-apigateway";
+import { Cors, MethodLoggingLevel, MockIntegration, PassthroughBehavior, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { aws_lambda } from 'aws-cdk-lib';
 import { Construct } from "constructs";
 
@@ -10,6 +10,7 @@ interface CreateRestApiProps {
 const METHOD_OPTIONS = {methodResponses: [{statusCode: '200'}, {statusCode: '400'}, {statusCode: '500'}]};
 
 export function createRestApi(scope: Construct, { region }: CreateRestApiProps): RestApi {
+
     const api = new RestApi(scope, "Api", {
         restApiName: "taskAPI",
         defaultCorsPreflightOptions: {
@@ -18,8 +19,9 @@ export function createRestApi(scope: Construct, { region }: CreateRestApiProps):
         deployOptions: {
             variables: {
                 REGION: region,
-            }
-        },
+            },
+            loggingLevel: MethodLoggingLevel.INFO
+        }
     });
 
     return api;

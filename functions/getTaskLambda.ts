@@ -8,15 +8,15 @@ export const handler = async (event: any): Promise<any> => {
 
     if (apiKey) {
       let role = Helper.getUserRole(apiKey);
-      if (role === 'admin') {
+      if (role === "admin") {
         let params = Helper.getRequestParameters(event);
         try {
-          await TaskModel.default.Model.delete({
-            id: params["taskId"],
-          });
+          let taskDetails = await TaskModel.default.Model.get(params["taskId"]);
+
           return {
             body: JSON.stringify({
-              message: "Task deleted successfully",
+              data: taskDetails.toJSON(),
+              message: "Task Detail Fetched",
             }),
             statusCode: 200,
           };

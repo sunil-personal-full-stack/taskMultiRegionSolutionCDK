@@ -93,7 +93,7 @@ export const handler = async (event: any): Promise<any> => {
         body: JSON.stringify({
           message: "you are not authorized to perform this task",
         }),
-        statusCode: 404
+        statusCode: 403
       };
     }
   } catch (err) {

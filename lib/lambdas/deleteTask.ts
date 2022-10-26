@@ -2,11 +2,11 @@ import { aws_lambda_nodejs, Duration, Stack } from "aws-cdk-lib";
 import { Role } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 
-export function updateTaskLambda(scope: Stack, region: string, role: Role): NodejsFunction {
-  return new aws_lambda_nodejs.NodejsFunction(scope, "updateTaskLambda", {
+export function deleteTaskLambda(scope: Stack, region: string, role: Role): NodejsFunction {
+  return new aws_lambda_nodejs.NodejsFunction(scope, "deleteTaskLambda", {
     timeout: Duration.seconds(5),
-    memorySize: 1024,
-    entry: "functions/updateTaskLambda.ts",
+    memorySize: 512,
+    entry: "functions/deleteTaskLambda.ts",
     environment: {
       region,
     },

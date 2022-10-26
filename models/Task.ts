@@ -9,7 +9,7 @@ AWS.config.update({
     region: process.env.region
 });
 
-const TaskModel = dynamoose.model("TasksTableV4", {
+const TaskModel = dynamoose.model("TasksTableV6", {
     id: {
         type: String,
         hashKey: true
@@ -43,7 +43,7 @@ const TaskModel = dynamoose.model("TasksTableV4", {
         type: String
     },
     assignedTo: {
-        type: Date,
+        type: String,
         required: false
     }
 }, {

@@ -4,7 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import { MultiApp } from '../lib/stack';
 
 const app = new cdk.App();
-new MultiApp(app, 'MultiRegionApplicationV1', {
+new MultiApp(app, 'MultiRegionApplicationV3', {
   env: {
     region: process.env.AWS_REGION ?? process.env.CDK_DEFAULT_REGION,
   },

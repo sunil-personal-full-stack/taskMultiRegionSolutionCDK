@@ -9,6 +9,7 @@ import {
   LambdaIntegration,
   RestApi,
   SecurityPolicy,
+  TokenAuthorizer,
 } from "aws-cdk-lib/aws-apigateway";
 import {
   ARecord,
@@ -29,6 +30,11 @@ import { AddApiGateWayDomainNameProps } from "../customTypes/addApiGatewayDomain
 import { createTaskLambda } from "./lambdas/createTask";
 import { createCustomAuthorizer } from "./lambdas/customAuthorizer";
 import { updateTaskLambda } from "./lambdas/updateTask";
+import { getAuthorizerRole } from "./authRole";
+import { deleteTaskLambda } from "./lambdas/deleteTask";
+import { getTaskLambda } from "./lambdas/getTask";
+import { getMemberTaskLambda } from "./lambdas/getMemberTask";
+import { statusChangeTaskLambda } from "./lambdas/statusChangeTask";
 
 
 
@@ -84,7 +90,7 @@ export class MultiApp extends Stack {
       this,
       {
         region,
-        tableName: `TasksTableV4${getTableSuffix()}`,
+        tableName: `TasksTableV6${getTableSuffix()}`,
         replicationRegions: SECONDARY_REGIONS,
       },
       MAIN_REGION
@@ -100,25 +106,56 @@ export class MultiApp extends Stack {
 
     // ADD DOMAIN TO API GATEWAY
     this.addApiGateWayDomainName({ domainName, restApi, hostedZoneId, region });
+    
+    // AUTHORIZER FUNCTION CREATION
+    const authorizer = createCustomAuthorizer(this, region, role);
+      
+    const customAuthorizer = new TokenAuthorizer(this, 'ApplicationAuthorizer', {
+      handler: authorizer,
+      authorizerName: 'ApplicationAuthorizer'
+    });
 
-    let taskResource = restApi.root.addResource("task");
+    let taskResource = restApi.root.addResource("task");  
 
     // CODE FOR ADDING LAMBDA TO DIFFERENT SUB ROOTS
-    // AUTHORIZER FUNCTION CREATION
-    const authorizer = createCustomAuthorizer(this, region);
     const createTask = createTaskLambda(this, region, role);
     const updateTask = updateTaskLambda(this, region, role);
-    
-    
+    const deleteTask = deleteTaskLambda(this, region, role);
+    const getTask = getTaskLambda(this, region, role);
+    const getMemberTask = getMemberTaskLambda(this, region, role);
+    const statusChangeTask = statusChangeTaskLambda(this, region, role);
+
     // ADD CREATE TASK API
-    taskResource.addMethod("POST", new LambdaIntegration(createTask, { proxy: true }), { authorizer });
+    taskResource.addMethod("POST", new LambdaIntegration(createTask), {authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
 
 
-    // ADD UPDATE TASK API
+    // ADD UPDATE TASK API {taskId} RESOURCES
     let currentTaskResource = taskResource.addResource('{taskId}');
+    
+    /**
+     * PUT /task/{taskId}/assign/{memberId} 
+     */
+    currentTaskResource.addMethod('PUT', new LambdaIntegration(updateTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
+    currentTaskResource.addMethod('DELETE', new LambdaIntegration(deleteTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
+    currentTaskResource.addMethod('GET', new LambdaIntegration(getTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
 
-    currentTaskResource.addMethod('PUT', new LambdaIntegration(updateTask, { proxy: true }), { authorizationType: AuthorizationType.CUSTOM, authorizer: authorizer,  });
-
+    /**
+     * PUT /task/{taskId}/accept
+     * PUT /task/{taskId}/complete
+     * PUT /task/{taskId}/close
+     */
+    let statusResource = currentTaskResource.addResource('{status}');
+    statusResource.addMethod('PUT', new LambdaIntegration(statusChangeTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
+    
+    let assignResource = (currentTaskResource.addResource('assign')).addResource('{memberId}');
+    assignResource
+    
+    
+    
+    
+    // MEMBER ID SPECIFIC RESOURCE
+    let memberTaskResource = taskResource.addResource('{memberId}');
+    memberTaskResource.addMethod('GET', new LambdaIntegration(getMemberTask), { authorizationType: AuthorizationType.CUSTOM, authorizer: customAuthorizer });
   }
 
   private addApiGateWayDomainName({

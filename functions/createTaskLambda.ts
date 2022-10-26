@@ -4,7 +4,6 @@ const { v4: uuidv4 } = require("uuid");
 
 export const handler = async (event: any): Promise<any> => {
   try {
-    const token = event.authorizationToken;
 
     // GET USER API KEY
     const apiKey = event["headers"]["Authorization"];
@@ -56,6 +55,7 @@ export const handler = async (event: any): Promise<any> => {
               title: body.title,
               description: body.description,
               dateCreated: new Date(),
+              status: 'Draft'
             };
 
             await TaskModel.default.Model.create(taskData);
@@ -80,7 +80,7 @@ export const handler = async (event: any): Promise<any> => {
       } else {
         return {
           body: JSON.stringify({
-            message: "User is not authorized to perform this access",
+            message: "User is not authorized to perform this action",
           }),
           statusCode: 403,
         };

@@ -1,30 +1,54 @@
-import { APIGatewayTokenAuthorizerHandler } from "aws-lambda";
-import { dummyApplicationUser } from '../helper/index';
+import { dummyApplicationUser } from "../helper/index";
+import {
+  APIGatewayAuthorizerResult,
+  APIGatewayTokenAuthorizerEvent,
+  APIGatewayTokenAuthorizerHandler,
+} from "aws-lambda";
 
-export const authorizer: APIGatewayTokenAuthorizerHandler = async (event) => {
-    const token = event.authorizationToken;
-    let effect = 'Deny';
+// Help function to generate an IAM policy
+const generatePolicy = (
+  principalId: string,
+  effect: string,
+  resource: string
+) => {
+  const policyDocument: any = {};
+  if (effect && resource) {
+    policyDocument.Version = "2012-10-17";
+    policyDocument.Statement = [];
 
-    dummyApplicationUser.forEach(element => {
-        if (element.api_key === token) {
-            effect = 'Allow'
-        }
-    });
+    const statementOne: any = {};
+    statementOne.Action = "execute-api:Invoke";
+    statementOne.Effect = effect;
+    statementOne.Resource = resource;
 
-    
-    return {
-        principalId: 'user',
-        policyDocument: {
-            Version: '2012-10-17',
-            Statement: [
-                {
-                    Action: 'execute-api:Invoke',
-                    Effect: effect,
-                    Resource: '*',
-                },
-            ],
-        },
-    }
+    policyDocument.Statement.push(statementOne);
+  }
+
+  return policyDocument;
 };
 
-export default authorizer;
+export const handler: APIGatewayTokenAuthorizerHandler = (
+  event: APIGatewayTokenAuthorizerEvent,
+  context: any,
+  callback: any
+) => {
+  
+  try {
+    const token = event.authorizationToken;
+    let effect = "Deny";
+    dummyApplicationUser.forEach((element) => {
+      if (element.api_key === token) {
+        effect = "Allow";
+      }
+    });
+
+    let result: APIGatewayAuthorizerResult = {
+      policyDocument: generatePolicy("user", effect, "*"),
+      principalId: "user",
+    };
+
+    callback(null, result);
+  } catch (err) {
+    console.log(err);
+  }
+};
