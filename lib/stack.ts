@@ -38,10 +38,10 @@ import { statusChangeTaskLambda } from "./lambdas/statusChangeTask";
 
 
 
-const MAIN_REGION: REGION = "us-east-1";
+const MAIN_REGION: REGION = "eu-west-1";
 
 // LIST OF REGIONS WHERE WE WANT TO DEPLOY OUR APPLICATION
-const SECONDARY_REGIONS: REGION[] = ["eu-west-1", "ap-southeast-2"];
+const SECONDARY_REGIONS: REGION[] = ['us-east-1'];
 
 export class MultiApp extends Stack {
   constructor(
@@ -90,7 +90,7 @@ export class MultiApp extends Stack {
       this,
       {
         region,
-        tableName: `TasksTableV7${getTableSuffix()}`,
+        tableName: `TasksTableV9${getTableSuffix()}`,
         replicationRegions: SECONDARY_REGIONS,
       },
       MAIN_REGION
@@ -107,12 +107,14 @@ export class MultiApp extends Stack {
     // ADD DOMAIN TO API GATEWAY
     this.addApiGateWayDomainName({ domainName, restApi, hostedZoneId, region });
     
+    const authRole = getAuthorizerRole(this, region);
     // AUTHORIZER FUNCTION CREATION
-    const authorizer = createCustomAuthorizer(this, region, role);
+    const lambdaAuthorizer = createCustomAuthorizer(this, region, role);
       
-    const customAuthorizer = new TokenAuthorizer(this, 'ApplicationAuthorizer', {
-      handler: authorizer,
-      authorizerName: 'ApplicationAuthorizer'
+    const customAuthorizer = new TokenAuthorizer(this, 'AppAuthorizerV4', {
+      handler: lambdaAuthorizer,
+      authorizerName: 'AppAuthorizerV8',
+      assumeRole: authRole
     });
 
     let taskResource = restApi.root.addResource("task");  
