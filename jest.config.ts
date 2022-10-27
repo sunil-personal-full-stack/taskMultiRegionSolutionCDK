@@ -3,7 +3,7 @@ module.exports = {
     roots: ['<rootDir>/test'],
     testMatch: ['**/*.test.ts'],
     transform: {
-      '^.+\\.tsx?$': 'babel-jest'
+      '^.+\\.tsx?$': 'ts-jest'
     }
   };
   

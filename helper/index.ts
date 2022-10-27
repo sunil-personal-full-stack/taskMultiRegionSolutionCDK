@@ -51,6 +51,7 @@ export interface ValidationConfig {
   regex?: string;
   regexFlag?: string;
   limit?: number;
+  shouldMatch?: boolean;
   otherValidations?: ValidationConfig[] | null;
 }
 
@@ -119,9 +120,14 @@ const subValidation = (key: string, value: any, validationConfig: ValidationConf
     }
   }
 
+  // VALIDATION FOR REGEX, IN THIS VALIDATION WE NEED TO WHETHER DATA SHOULD SATISFY REX OR NOT
   if (validationConfig.type === OtherValidationTypes.REGEX) {
     let regex = new RegExp((validationConfig.regex || ''), (validationConfig.regexFlag || 'i'));
-    if (!regex.test(value)) {
+    if (validationConfig.shouldMatch && !regex.test(value)) {
+      errors.push(validationConfig.message || `Invalid value given for parameter ${key}`);
+    }
+
+    if (!validationConfig.shouldMatch && regex.test(value)) {
       errors.push(validationConfig.message || `Invalid value given for parameter ${key}`);
     }
   }

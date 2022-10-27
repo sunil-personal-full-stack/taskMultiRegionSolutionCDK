@@ -37,6 +37,9 @@ export const handler = async (event: any): Promise<any> => {
                 {
                   type: Helper.OtherValidationTypes.REGEX,
                   message: "Title need to be alpha numeric, # or _",
+                  regex: '^[ A-Za-z0-9_#]*$',
+                  regexFlag: 'ui',
+                  shouldMatch: true
                 },
               ],
             },
@@ -48,7 +51,7 @@ export const handler = async (event: any): Promise<any> => {
           let errors = Helper.validateObject(body, validationConfig);
 
           if (errors.length) {
-            return { body: JSON.stringify({ body, errors }), statusCode: 500 };
+            return { body: JSON.stringify({  errors }), statusCode: 400 };
           } else {
             let taskData = {
               id: uuidv4(),

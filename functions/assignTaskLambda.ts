@@ -23,11 +23,11 @@ export const handler = async (event: any): Promise<any> => {
         let taskStatus = "Assigned";
 
         // GET CURRENT TASK DETAILS
-        let currentTask: any = await TaskModel.default.Model.get({ id: params["taskId"] });
+        let currentTask: any = await TaskModel.default.Model.query({ id: params["taskId"] }).exec();
 
-        currentTask = currentTask ? currentTask.toJSON() : {};
+        currentTask = currentTask ? currentTask.toJSON() : [];
 
-        if (!currentTask) {
+        if (currentTask && !currentTask.length) {
           return {
             body: JSON.stringify({
               message: "Task not found",
@@ -36,6 +36,7 @@ export const handler = async (event: any): Promise<any> => {
           };
         }
 
+        currentTask = currentTask[0];
         if (currentTask.status !== "Closed") {
           let updateData = {
             id: currentTask.id,
