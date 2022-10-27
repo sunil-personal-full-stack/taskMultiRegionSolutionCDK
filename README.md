@@ -34,6 +34,13 @@ Design a multi region serverless application. In this application we need to sol
 <a name="paragraph2"></a>
 Application Setup Steps
 ## Application Setup Steps
+Before starting application deployment, do following things
+
+1. create aws account
+2. update local credential file
+3. install aws cli
+4. install aws cdk v2
+
 For doing setup of our application following thing need to be done.
 
 1. Route 53 host zone setup
@@ -48,3 +55,17 @@ For doing setup of our application following thing need to be done.
     sh deploy.sh
     ````
 
+<a name="paragraph1"></a>
+## Testing application
+
+For application unit testing, once application deployed to testing server. Change base url in requestHelper.ts file in test folder and run below command
+
+```
+npm run test
+```
+
+For testing application using postman, import collection in postman using following json link
+
+```
+https://www.getpostman.com/collections/2ce7cf9aac27004445f8
+```

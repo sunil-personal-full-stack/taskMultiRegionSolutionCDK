@@ -1,9 +1,10 @@
 import * as https from "https";
+const baseUrl = "multiv5.hanuultp.com";
 
 export const postRequest = (path: string, data: any, token: string) => {
   return new Promise((resolve, reject) => {
     var options = {
-      hostname: "multiv5.hanuultp.com",
+      hostname: baseUrl,
       port: 443,
       path: path,
       method: "POST",
@@ -41,7 +42,7 @@ export const postRequest = (path: string, data: any, token: string) => {
 export const putRequest = (path: string, data: any, token: string) => {
     return new Promise((resolve, reject) => {
       var options = {
-        hostname: "multiv5.hanuultp.com",
+        hostname: baseUrl,
         port: 443,
         path: path,
         method: "PUT",
@@ -79,7 +80,7 @@ export const putRequest = (path: string, data: any, token: string) => {
 export const getRequest = (path: string, data: any, token: string) => {
   return new Promise((resolve, reject) => {
     var options = {
-      hostname: "multiv5.hanuultp.com",
+      hostname: baseUrl,
       port: 443,
       path: path,
       method: "GET",
@@ -114,7 +115,7 @@ export const getRequest = (path: string, data: any, token: string) => {
 export const deleteRequest = (path: string, data: any, token: string) => {
   return new Promise((resolve, reject) => {
     var options = {
-      hostname: "multiv5.hanuultp.com",
+      hostname: baseUrl,
       port: 443,
       path: path,
       method: "DELETE",
